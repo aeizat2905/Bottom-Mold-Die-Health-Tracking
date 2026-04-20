@@ -49,7 +49,6 @@
   .machine-alarm-count{font-family:var(--mono);font-size:11px;background:rgba(255,34,68,.15);border:1px solid var(--danger);color:var(--danger);padding:3px 8px;border-radius:3px;display:none}
   .machine-alarm-count.visible{display:block}
   .press-list{padding:12px;display:flex;flex-direction:column;gap:10px}
-
   .press-item{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;transition:border-color .3s}
   .press-item.alarm{border-color:var(--danger);animation:alarm-pulse 1.5s ease-in-out infinite}
   @keyframes alarm-pulse{0%,100%{box-shadow:inset 0 0 12px rgba(255,34,68,.08),0 0 8px rgba(255,34,68,.15)}50%{box-shadow:inset 0 0 20px rgba(255,34,68,.18),0 0 18px rgba(255,34,68,.3)}}
@@ -60,14 +59,12 @@
   .alarm-badge.service{background:rgba(255,34,68,.2);border:1px solid var(--danger);color:var(--danger);animation:blink .8s step-end infinite}
   .alarm-badge.warning{background:rgba(255,107,0,.2);border:1px solid var(--warn);color:var(--warn)}
   @keyframes blink{50%{opacity:0}}
-
   .mold-select-wrap{display:flex;align-items:center;gap:6px;margin-bottom:10px}
   .mold-label-mini{font-size:10px;color:var(--text-dim);letter-spacing:1px;white-space:nowrap}
   .mold-select{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:3px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6480'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px}
   .mold-select:focus{outline:none;border-color:var(--accent)}
   .mold-select option{background:#0f1626;color:var(--text-bright)}
   .mold-select.no-molds{color:var(--text-dim)}
-
   .progress-bar-bg{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:6px}
   .progress-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .5s ease}
   .progress-bar-fill.warn-fill{background:linear-gradient(90deg,#cc5500,var(--warn))}
@@ -87,7 +84,6 @@
   .modal h2{font-family:var(--head);font-size:20px;color:var(--text-bright);margin-bottom:16px;letter-spacing:2px}
   .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
 
-  /* MOLD MANAGER */
   .mold-add-row{display:flex;gap:8px;margin-bottom:14px}
   .mold-add-row input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:4px}
   .mold-add-row input:focus{outline:none;border-color:var(--accent)}
@@ -99,10 +95,12 @@
   .mold-list-item-name{font-family:var(--mono);font-size:13px;color:var(--text-bright)}
   .mold-list-item-del{background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
   .mold-list-item-del:hover{border-color:var(--danger);color:var(--danger);background:rgba(255,34,68,.1)}
-  .mold-count-badge{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:10px}
+  .mold-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .mold-count-badge{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
   .mold-count-badge span{color:var(--accent)}
+  .mold-unsaved{font-family:var(--mono);font-size:10px;color:var(--warn);display:none}
+  .mold-unsaved.show{display:block}
 
-  /* CSV */
   .csv-format-box{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:14px 16px;margin-bottom:16px}
   .csv-format-box .box-title{font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px}
   .csv-format-box code{font-family:var(--mono);font-size:13px;color:var(--accent);display:block;margin-bottom:8px}
@@ -123,7 +121,6 @@
 
   .footer-bar{margin-top:20px;padding:10px 20px;background:var(--panel);border:1px solid var(--border);border-radius:0 0 8px 8px;display:flex;align-items:center;gap:20px;font-family:var(--mono);font-size:11px;color:var(--text-dim);flex-wrap:wrap}
   .footer-stat span{color:var(--accent)}
-
   .toast-wrap{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
   .toast{padding:10px 16px;border-radius:4px;border:1px solid;font-family:var(--mono);font-size:12px;animation:toast-in .3s ease,toast-out .3s ease 2.7s forwards;pointer-events:none}
   .toast.ok{background:rgba(0,230,118,.12);border-color:var(--ok);color:var(--ok)}
@@ -138,7 +135,6 @@
 </head>
 <body>
 <div class="app">
-
   <header>
     <div class="logo">
       <div class="logo-icon">T</div>
@@ -186,12 +182,16 @@
         onkeydown="if(event.key==='Enter')addMold()">
       <button class="btn btn-primary" style="padding:8px 16px" onclick="addMold()">+ ADD</button>
     </div>
-    <div class="mold-count-badge">TOTAL IN LIST: <span id="mold-list-count">0</span></div>
+    <div class="mold-meta">
+      <div class="mold-count-badge">TOTAL: <span id="mold-list-count">0</span></div>
+      <div class="mold-unsaved" id="mold-unsaved">⚠ UNSAVED CHANGES</div>
+    </div>
     <div class="mold-list-box" id="mold-list-box">
-      <div class="mold-list-empty" id="mold-list-empty">No mold dies added yet.<br>Type a name above and click ADD.</div>
+      <div class="mold-list-empty" id="mold-list-empty">No mold dies added yet. Type a name above and click ADD.</div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ok" onclick="closeMoldManager()">✓ DONE</button>
+      <button class="btn btn-danger" onclick="discardMolds()">✕ DISCARD</button>
+      <button class="btn btn-ok" onclick="saveMoldsAndClose()">💾 SAVE &amp; CLOSE</button>
     </div>
   </div>
 </div>
@@ -237,23 +237,16 @@
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-// ══════════════════════════════════════════════
-//  HARDCODED CREDENTIALS
-// ══════════════════════════════════════════════
+// ── CREDENTIALS ───────────────────────────────
 const API_KEY = '$2a$10$5.i4u9ICZHRA0uTevoZCKei0XxpQPVKueq/sJ87ujQk8ShTModkm6';
 const BIN_ID  = '69e5ec98aaba8821971a45a8';
 
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
+// ── STATE ─────────────────────────────────────
 const MACHINES    = ['TOWA#43','TOWA#44','TOWA#45'];
 const PRESS_COUNT = 3;
 
-let state = {
-  threshold: 674592,
-  moldList:  [],
-  machines:  {}
-};
+let state = { threshold: 674592, moldList: [], machines: {} };
+let moldSnapshot = []; // for discard
 
 MACHINES.forEach(m => {
   state.machines[m] = {};
@@ -263,26 +256,22 @@ MACHINES.forEach(m => {
 
 let pendingCSV = null;
 
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
+// ── INIT ──────────────────────────────────────
 function init() {
-  // Load localStorage first for instant render
   const saved = localStorage.getItem('towa_v3');
   if(saved) {
     try {
       const s = JSON.parse(saved);
-      if(s.threshold)            state.threshold = s.threshold;
-      if(Array.isArray(s.moldList)) state.moldList = s.moldList;
+      if(s.threshold)               state.threshold = s.threshold;
+      if(Array.isArray(s.moldList)) state.moldList  = s.moldList;
       if(s.machines) {
         MACHINES.forEach(m => {
-          if(s.machines[m]) {
+          if(s.machines[m])
             for(let p = 1; p <= PRESS_COUNT; p++) {
               const k = `press${p}`;
               if(s.machines[m][k])
                 state.machines[m][k] = { ...state.machines[m][k], ...s.machines[m][k] };
             }
-          }
         });
       }
     } catch(e) {}
@@ -290,58 +279,48 @@ function init() {
   document.getElementById('global-threshold').value = state.threshold;
   renderAll();
   updateMoldFooter();
-  // Then sync from cloud
   loadFromBin();
 }
 
-// ══════════════════════════════════════════════
-//  RENDER
-// ══════════════════════════════════════════════
+// ── RENDER ────────────────────────────────────
 function renderAll() {
   const c = document.getElementById('machines-container');
   c.innerHTML = '';
   let totalAlarms = 0;
-
   MACHINES.forEach(mid => {
     const card = document.createElement('div');
     card.className = 'machine-card';
     let alarms = 0, html = '';
-
     for(let p = 1; p <= PRESS_COUNT; p++) {
-      const k     = `press${p}`;
-      const press = state.machines[mid][k];
+      const k = `press${p}`, press = state.machines[mid][k];
       const units = press.units || 0;
       const pct   = Math.min(units / state.threshold * 100, 100);
-      const isA   = units >= state.threshold;
-      const isW   = !isA && pct >= 80;
+      const isA   = units >= state.threshold, isW = !isA && pct >= 80;
       if(isA) alarms++;
-
       const noMolds = state.moldList.length === 0;
       let opts = `<option value="">— Select Mold Die —</option>`;
-      state.moldList.forEach(name => {
-        opts += `<option value="${esc(name)}"${press.mold === name ? ' selected' : ''}>${esc(name)}</option>`;
+      state.moldList.forEach(n => {
+        opts += `<option value="${esc(n)}"${press.mold===n?' selected':''}>${esc(n)}</option>`;
       });
-
       html += `
-        <div class="press-item ${isA ? 'alarm' : isW ? 'warning' : ''}">
+        <div class="press-item ${isA?'alarm':isW?'warning':''}">
           <div class="press-top">
             <span class="press-label">PRESS ${p}</span>
-            ${isA ? '<span class="alarm-badge service">⚠ SERVICE NOW</span>' : ''}
-            ${isW ? '<span class="alarm-badge warning">⚡ NEAR LIMIT</span>'  : ''}
+            ${isA?'<span class="alarm-badge service">⚠ SERVICE NOW</span>':''}
+            ${isW?'<span class="alarm-badge warning">⚡ NEAR LIMIT</span>':''}
           </div>
           <div class="mold-select-wrap">
             <span class="mold-label-mini">MOLD DIE:</span>
-            <select class="mold-select${noMolds ? ' no-molds' : ''}"
-              onchange="updateMold('${mid}','${k}',this.value)">
-              ${noMolds ? '<option value="">No mold dies — click 🔩 Manage</option>' : opts}
+            <select class="mold-select${noMolds?' no-molds':''}" onchange="updateMold('${mid}','${k}',this.value)">
+              ${noMolds?'<option value="">No mold dies — click 🔩 Manage</option>':opts}
             </select>
           </div>
           <div class="progress-bar-bg">
-            <div class="progress-bar-fill ${isA ? 'alarm-fill' : isW ? 'warn-fill' : ''}" style="width:${pct}%"></div>
+            <div class="progress-bar-fill ${isA?'alarm-fill':isW?'warn-fill':''}" style="width:${pct}%"></div>
           </div>
           <div class="press-stats">
-            <span class="unit-count ${isA ? 'alarm-text' : isW ? 'warn-text' : ''}">${units.toLocaleString()}</span>
-            <span class="unit-pct" style="color:${isA ? 'var(--danger)' : isW ? 'var(--warn)' : 'var(--text-dim)'}">${pct.toFixed(1)}%</span>
+            <span class="unit-count ${isA?'alarm-text':isW?'warn-text':''}">${units.toLocaleString()}</span>
+            <span class="unit-pct" style="color:${isA?'var(--danger)':isW?'var(--warn)':'var(--text-dim)'}">${pct.toFixed(1)}%</span>
             <span class="unit-max">/ ${state.threshold.toLocaleString()}</span>
           </div>
           <div class="press-actions">
@@ -349,65 +328,70 @@ function renderAll() {
           </div>
         </div>`;
     }
-
     totalAlarms += alarms;
     card.innerHTML = `
       <div class="machine-header">
         <span class="machine-id">${mid}</span>
-        <span class="machine-alarm-count ${alarms > 0 ? 'visible' : ''}">${alarms} ALARM${alarms !== 1 ? 'S' : ''}</span>
+        <span class="machine-alarm-count ${alarms>0?'visible':''}">${alarms} ALARM${alarms!==1?'S':''}</span>
       </div>
       <div class="press-list">${html}</div>`;
     c.appendChild(card);
   });
-
   const el = document.getElementById('alarm-count-footer');
   el.textContent = totalAlarms;
   el.style.color  = totalAlarms > 0 ? 'var(--danger)' : 'var(--ok)';
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function updateMold(m, k, v)   { state.machines[m][k].mold = v; }
-function updateThreshold(v)    { state.threshold = parseInt(v) || 674592; renderAll(); }
-function updateMoldFooter()    { document.getElementById('mold-count-footer').textContent = state.moldList.length; }
-
-function resetPress(m, k) {
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function updateMold(m,k,v){ state.machines[m][k].mold = v; }
+function updateThreshold(v){ state.threshold = parseInt(v)||674592; renderAll(); }
+function updateMoldFooter(){ document.getElementById('mold-count-footer').textContent = state.moldList.length; }
+function resetPress(m,k){
   if(!confirm(`Reset ${m} ${k} unit count to 0?`)) return;
-  state.machines[m][k].units = 0;
-  renderAll();
-  showToast(`${m} ${k} counter reset`, 'ok');
+  state.machines[m][k].units = 0; renderAll();
+  showToast(`${m} ${k} counter reset`,'ok');
 }
 
-// ══════════════════════════════════════════════
-//  MOLD DIE MANAGER
-// ══════════════════════════════════════════════
+// ── MOLD MANAGER ──────────────────────────────
+// KEY FIX: snapshot on open, persist on every add/delete,
+// push to cloud only on "SAVE & CLOSE", restore on "DISCARD"
 function openMoldManager() {
+  moldSnapshot = [...state.moldList];           // snapshot for discard
   document.getElementById('mold-new-input').value = '';
+  document.getElementById('mold-unsaved').classList.remove('show');
   renderMoldList();
   document.getElementById('mold-modal').classList.add('open');
-  setTimeout(() => document.getElementById('mold-new-input').focus(), 100);
+  setTimeout(()=>document.getElementById('mold-new-input').focus(), 100);
 }
-function closeMoldManager() {
+
+function saveMoldsAndClose() {
+  persistLocal();   // save to localStorage
+  saveData();       // push to JSONBin
   document.getElementById('mold-modal').classList.remove('open');
   renderAll();
   updateMoldFooter();
 }
 
+function discardMolds() {
+  state.moldList = [...moldSnapshot];           // restore snapshot
+  persistLocal();
+  document.getElementById('mold-modal').classList.remove('open');
+  renderAll();
+  updateMoldFooter();
+  showToast('Mold die changes discarded','info');
+}
+
 function renderMoldList() {
-  const box   = document.getElementById('mold-list-box');
+  const box = document.getElementById('mold-list-box');
   const empty = document.getElementById('mold-list-empty');
   document.getElementById('mold-list-count').textContent = state.moldList.length;
-  box.querySelectorAll('.mold-list-item').forEach(el => el.remove());
-
-  if(state.moldList.length === 0) { empty.style.display = ''; return; }
+  box.querySelectorAll('.mold-list-item').forEach(el=>el.remove());
+  if(state.moldList.length === 0){ empty.style.display=''; return; }
   empty.style.display = 'none';
-
-  state.moldList.forEach((name, idx) => {
+  state.moldList.forEach((name,idx)=>{
     const item = document.createElement('div');
     item.className = 'mold-list-item';
-    item.innerHTML = `
-      <span class="mold-list-item-name">${esc(name)}</span>
+    item.innerHTML = `<span class="mold-list-item-name">${esc(name)}</span>
       <button class="mold-list-item-del" onclick="deleteMold(${idx})">✕ REMOVE</button>`;
     box.appendChild(item);
   });
@@ -416,217 +400,147 @@ function renderMoldList() {
 function addMold() {
   const input = document.getElementById('mold-new-input');
   const val   = input.value.trim();
-  if(!val)                            { showToast('Enter a mold die name', 'err'); return; }
-  if(state.moldList.includes(val))    { showToast('Already in list', 'err'); return; }
+  if(!val)                         { showToast('Enter a mold die name','err'); return; }
+  if(state.moldList.includes(val)) { showToast('Already in list','err'); return; }
   state.moldList.push(val);
   input.value = '';
+  persistLocal();                              // ✅ save to localStorage immediately
   renderMoldList();
-  showToast(`"${val}" added`, 'ok');
+  document.getElementById('mold-unsaved').classList.add('show');
+  showToast(`"${val}" added`,'ok');
 }
 
 function deleteMold(idx) {
   const name = state.moldList[idx];
   MACHINES.forEach(m => {
-    for(let p = 1; p <= PRESS_COUNT; p++) {
-      const k = `press${p}`;
-      if(state.machines[m][k].mold === name)
-        state.machines[m][k].mold = '';
+    for(let p=1;p<=PRESS_COUNT;p++){
+      const k=`press${p}`;
+      if(state.machines[m][k].mold===name) state.machines[m][k].mold='';
     }
   });
-  state.moldList.splice(idx, 1);
+  state.moldList.splice(idx,1);
+  persistLocal();                              // ✅ save to localStorage immediately
   renderMoldList();
-  showToast(`"${name}" removed`, 'info');
+  document.getElementById('mold-unsaved').classList.add('show');
+  showToast(`"${name}" removed`,'info');
 }
 
-// ══════════════════════════════════════════════
-//  CSV UPLOAD
-// ══════════════════════════════════════════════
+// ── CSV UPLOAD ────────────────────────────────
 function openUpload() {
-  pendingCSV = null;
-  document.getElementById('csv-result').style.display  = 'none';
-  document.getElementById('drop-zone').style.display   = '';
-  document.getElementById('apply-csv-btn').disabled    = true;
-  document.getElementById('csv-file-input').value      = '';
+  pendingCSV=null;
+  document.getElementById('csv-result').style.display='none';
+  document.getElementById('drop-zone').style.display='';
+  document.getElementById('apply-csv-btn').disabled=true;
+  document.getElementById('csv-file-input').value='';
   document.getElementById('upload-modal').classList.add('open');
 }
-function closeUpload() { document.getElementById('upload-modal').classList.remove('open'); }
+function closeUpload(){ document.getElementById('upload-modal').classList.remove('open'); }
 
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', ()  => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag');
-  if(e.dataTransfer.files[0]) processCSVFile(e.dataTransfer.files[0]);
-});
-function handleFileSelect(i) { if(i.files[0]) processCSVFile(i.files[0]); }
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])processCSVFile(e.dataTransfer.files[0])});
+function handleFileSelect(i){ if(i.files[0]) processCSVFile(i.files[0]); }
 
 function processCSVFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const text  = e.target.result;
-    const delim = text.includes(';') ? ';' : ',';
-    const lines = text.trim().split('\n').filter(l => l.trim());
-    if(lines.length < 2) { showToast('CSV needs header + data rows', 'err'); return; }
-
-    const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
-    const rows    = lines.slice(1).map(l => l.split(delim).map(v => v.trim().replace(/^"|"$/g,'')));
-
-    const colM = headers.findIndex(h => /machine|towa|id|mach/.test(h));
-    const colP = headers.findIndex(h => /press|station/.test(h));
-    const colS = headers.findIndex(h => /shot|unit|count|qty|pcs|piece/.test(h));
-
-    if(colM < 0 || colP < 0 || colS < 0) {
-      showToast('Cannot find machine / press / shots columns', 'err'); return;
-    }
-
-    let ok = 0, skip = 0;
-    const parsed = [];
-    rows.forEach(row => {
-      const rawM  = (row[colM] || '').trim().toUpperCase();
-      const pNum  = parseInt((row[colP] || '').replace(/\D/g,''));
-      const shots = parseInt(row[colS]) || 0;
-      if(!shots || !pNum || pNum < 1 || pNum > PRESS_COUNT) { skip++; return; }
-      const machine = MACHINES.find(m =>
-        m.toUpperCase() === rawM ||
-        m.replace('#','').toUpperCase() === rawM.replace('#','') ||
-        rawM === m.split('#')[1]
-      );
-      if(!machine) { skip++; return; }
-      parsed.push({ machine, pressKey: `press${pNum}`, shots });
-      ok++;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result, delim=text.includes(';')?';':',';
+    const lines=text.trim().split('\n').filter(l=>l.trim());
+    if(lines.length<2){showToast('CSV needs header + data rows','err');return;}
+    const headers=lines[0].split(delim).map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
+    const rows=lines.slice(1).map(l=>l.split(delim).map(v=>v.trim().replace(/^"|"$/g,'')));
+    const colM=headers.findIndex(h=>/machine|towa|id|mach/.test(h));
+    const colP=headers.findIndex(h=>/press|station/.test(h));
+    const colS=headers.findIndex(h=>/shot|unit|count|qty|pcs|piece/.test(h));
+    if(colM<0||colP<0||colS<0){showToast('Cannot find machine/press/shots columns','err');return;}
+    let ok=0,skip=0; const parsed=[];
+    rows.forEach(row=>{
+      const rawM=(row[colM]||'').trim().toUpperCase();
+      const pNum=parseInt((row[colP]||'').replace(/\D/g,''));
+      const shots=parseInt(row[colS])||0;
+      if(!shots||!pNum||pNum<1||pNum>PRESS_COUNT){skip++;return;}
+      const machine=MACHINES.find(m=>m.toUpperCase()===rawM||m.replace('#','').toUpperCase()===rawM.replace('#','')||rawM===m.split('#')[1]);
+      if(!machine){skip++;return;}
+      parsed.push({machine,pressKey:`press${pNum}`,shots});ok++;
     });
-
-    pendingCSV = parsed;
-    document.getElementById('r-file').textContent  = file.name;
-    document.getElementById('r-total').textContent = rows.length;
-    document.getElementById('r-ok').textContent    = ok;
-    const skipEl = document.getElementById('r-skip');
-    skipEl.textContent = skip;
-    skipEl.className   = skip > 0 ? 'err-val' : 'ok-val';
-    document.getElementById('csv-result').style.display = '';
-    document.getElementById('drop-zone').style.display  = 'none';
-    document.getElementById('apply-csv-btn').disabled   = ok === 0;
-    if(ok === 0) showToast('No rows matched — check machine IDs and press numbers', 'err');
+    pendingCSV=parsed;
+    document.getElementById('r-file').textContent=file.name;
+    document.getElementById('r-total').textContent=rows.length;
+    document.getElementById('r-ok').textContent=ok;
+    const skipEl=document.getElementById('r-skip');
+    skipEl.textContent=skip; skipEl.className=skip>0?'err-val':'ok-val';
+    document.getElementById('csv-result').style.display='';
+    document.getElementById('drop-zone').style.display='none';
+    document.getElementById('apply-csv-btn').disabled=ok===0;
+    if(ok===0) showToast('No rows matched — check machine IDs and press numbers','err');
   };
   reader.readAsText(file);
 }
 
 function applyCSV() {
-  if(!pendingCSV || !pendingCSV.length) return;
-  pendingCSV.forEach(({ machine, pressKey, shots }) =>
-    state.machines[machine][pressKey].units += shots
-  );
-  renderAll();
-  closeUpload();
-  showToast(`Applied ${pendingCSV.length} shot entries ✓`, 'ok');
-  pendingCSV = null;
+  if(!pendingCSV||!pendingCSV.length) return;
+  pendingCSV.forEach(({machine,pressKey,shots})=>state.machines[machine][pressKey].units+=shots);
+  renderAll(); closeUpload();
+  showToast(`Applied ${pendingCSV.length} shot entries ✓`,'ok');
+  pendingCSV=null;
 }
 
-// ══════════════════════════════════════════════
-//  JSONBIN  (credentials hardcoded above)
-// ══════════════════════════════════════════════
+// ── JSONBIN ───────────────────────────────────
 async function saveData() {
   persistLocal();
-  showToast('Saving to cloud…', 'info');
-  const payload = {
-    threshold: state.threshold,
-    moldList:  state.moldList,
-    machines:  state.machines,
-    savedAt:   new Date().toISOString()
-  };
+  showToast('Saving to cloud…','info');
+  const payload={threshold:state.threshold,moldList:state.moldList,machines:state.machines,savedAt:new Date().toISOString()};
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-      body:    JSON.stringify(payload)
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
+      body:JSON.stringify(payload)
     });
-    if(r.ok) {
-      showToast('Saved to cloud ☁ ✓', 'ok');
-      updateLastSave(true);
-      setStatus(true);
-    } else {
-      const j = await r.json().catch(() => ({}));
-      showToast(`Save error: ${j.message || r.status}`, 'err');
-      updateLastSave(false);
-    }
-  } catch(e) {
-    showToast('Cloud unreachable — saved locally', 'err');
-    updateLastSave(false);
-  }
+    if(r.ok){ showToast('Saved to cloud ☁ ✓','ok'); updateLastSave(true); setStatus(true); }
+    else { const j=await r.json().catch(()=>({})); showToast(`Save error: ${j.message||r.status}`,'err'); updateLastSave(false); }
+  } catch(e){ showToast('Cloud unreachable — saved locally','err'); updateLastSave(false); }
 }
 
 async function loadFromBin() {
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': API_KEY }
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+    if(!r.ok){setStatus(false);return;}
+    const data=await r.json(), rec=data.record;
+    if(!rec){setStatus(false);return;}
+    if(rec.threshold)               state.threshold=rec.threshold;
+    if(Array.isArray(rec.moldList)) state.moldList=rec.moldList;
+    if(rec.machines) MACHINES.forEach(m=>{
+      if(rec.machines[m]) for(let p=1;p<=PRESS_COUNT;p++){
+        const k=`press${p}`;
+        if(rec.machines[m][k]) state.machines[m][k]={...state.machines[m][k],...rec.machines[m][k]};
+      }
     });
-    if(!r.ok) { setStatus(false); return; }
-    const data = await r.json();
-    const rec  = data.record;
-    if(!rec) { setStatus(false); return; }
-
-    if(rec.threshold)              state.threshold = rec.threshold;
-    if(Array.isArray(rec.moldList)) state.moldList = rec.moldList;
-    if(rec.machines) {
-      MACHINES.forEach(m => {
-        if(rec.machines[m]) {
-          for(let p = 1; p <= PRESS_COUNT; p++) {
-            const k = `press${p}`;
-            if(rec.machines[m][k])
-              state.machines[m][k] = { ...state.machines[m][k], ...rec.machines[m][k] };
-          }
-        }
-      });
-    }
-    document.getElementById('global-threshold').value = state.threshold;
-    persistLocal();
-    renderAll();
-    updateMoldFooter();
-    setStatus(true, rec.savedAt);
-    showToast('Synced from cloud ✓', 'ok');
-  } catch(e) {
-    setStatus(false);
-    showToast('Cloud unreachable — using local data', 'info');
-  }
+    document.getElementById('global-threshold').value=state.threshold;
+    persistLocal(); renderAll(); updateMoldFooter();
+    setStatus(true,rec.savedAt);
+    showToast('Synced from cloud ✓','ok');
+  } catch(e){ setStatus(false); showToast('Cloud unreachable — using local data','info'); }
 }
 
-function persistLocal() { localStorage.setItem('towa_v3', JSON.stringify(state)); }
-
-function updateLastSave(remote) {
-  document.querySelector('#last-save span').textContent =
-    (remote ? '☁ ' : '💻 ') + new Date().toLocaleTimeString();
+function persistLocal(){ localStorage.setItem('towa_v3',JSON.stringify(state)); }
+function updateLastSave(remote){ document.querySelector('#last-save span').textContent=(remote?'☁ ':'💻 ')+new Date().toLocaleTimeString(); }
+function setStatus(ok,timeStr){
+  const el=document.getElementById('sync-time'), dot=document.getElementById('status-dot');
+  if(ok){ const t=timeStr?new Date(timeStr).toLocaleString():new Date().toLocaleTimeString(); el.textContent='CLOUD SYNC '+t; dot.style.background='var(--ok)'; dot.style.boxShadow='0 0 8px var(--ok)'; }
+  else  { el.textContent='LOCAL ONLY'; dot.style.background='var(--warn)'; dot.style.boxShadow='0 0 8px var(--warn)'; }
 }
 
-function setStatus(ok, timeStr) {
-  const el  = document.getElementById('sync-time');
-  const dot = document.getElementById('status-dot');
-  if(ok) {
-    const t = timeStr ? new Date(timeStr).toLocaleString() : new Date().toLocaleTimeString();
-    el.textContent          = 'CLOUD SYNC ' + t;
-    dot.style.background    = 'var(--ok)';
-    dot.style.boxShadow     = '0 0 8px var(--ok)';
-  } else {
-    el.textContent          = 'LOCAL ONLY';
-    dot.style.background    = 'var(--warn)';
-    dot.style.boxShadow     = '0 0 8px var(--warn)';
-  }
+function showToast(msg,type='info'){
+  const wrap=document.getElementById('toast-wrap'), t=document.createElement('div');
+  t.className=`toast ${type}`; t.textContent=msg; wrap.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
 }
 
-// ══════════════════════════════════════════════
-//  TOAST & MISC
-// ══════════════════════════════════════════════
-function showToast(msg, type = 'info') {
-  const wrap = document.getElementById('toast-wrap');
-  const t    = document.createElement('div');
-  t.className   = `toast ${type}`;
-  t.textContent = msg;
-  wrap.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
-}
-
-document.querySelectorAll('.overlay').forEach(o =>
-  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); })
-);
+// Only CSV modal closes on backdrop — Mold modal forces explicit action
+document.getElementById('upload-modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('upload-modal')) closeUpload();
+});
 
 init();
 </script>
