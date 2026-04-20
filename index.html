@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOWA Mold Die Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0e1a;--panel:#0f1626;--panel2:#131c30;--border:#1e2d4a;
+    --accent:#00d4ff;--accent2:#0080ff;--warn:#ff6b00;--danger:#ff2244;--ok:#00e676;
+    --text:#c8dff5;--text-dim:#4a6480;--text-bright:#e8f4ff;
+    --mono:'Share Tech Mono',monospace;--head:'Rajdhani',sans-serif;--body:'Exo 2',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:20px}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:linear-gradient(135deg,#0d1a2e,#0f2040);border:1px solid var(--border);border-bottom:2px solid var(--accent);border-radius:8px 8px 0 0;margin-bottom:2px;clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%)}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-weight:700;font-size:18px;color:#000}
+  .logo-text h1{font-family:var(--head);font-size:22px;font-weight:700;color:var(--text-bright);letter-spacing:2px}
+  .logo-text p{font-size:11px;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase}
+  .header-right{display:flex;align-items:center;gap:16px}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 8px var(--warn);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .sync-time{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--panel);border:1px solid var(--border);border-top:none;margin-bottom:20px}
+  .btn{font-family:var(--head);font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:8px 18px;border-radius:4px;border:1px solid;cursor:pointer;transition:all .2s;background:transparent;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .btn-primary{border-color:var(--accent);color:var(--accent)}.btn-primary:hover{background:rgba(0,212,255,.12);box-shadow:0 0 12px rgba(0,212,255,.3)}
+  .btn-ok{border-color:var(--ok);color:var(--ok)}.btn-ok:hover{background:rgba(0,230,118,.12)}
+  .btn-danger{border-color:var(--danger);color:var(--danger)}.btn-danger:hover{background:rgba(255,34,68,.12)}
+  .btn-dim{border-color:var(--border);color:var(--text-dim)}.btn-dim:hover{border-color:var(--text-dim);color:var(--text)}
+  .toolbar-sep{width:1px;height:28px;background:var(--border);flex-shrink:0}
+  .threshold-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .threshold-wrap label{font-size:12px;color:var(--text-dim);letter-spacing:1px;white-space:nowrap}
+  .threshold-wrap input{background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:14px;padding:6px 10px;border-radius:4px;width:130px;text-align:right}
+  .threshold-wrap input:focus{outline:none;border-color:var(--accent)}
+
+  .machines{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:960px){.machines{grid-template-columns:1fr}}
+
+  .machine-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:box-shadow .3s}
+  .machine-card:hover{box-shadow:0 4px 24px rgba(0,212,255,.1)}
+  .machine-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,#0d1a2e,#101f38);border-bottom:2px solid var(--accent2)}
+  .machine-id{font-family:var(--head);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:2px}
+  .machine-alarm-count{font-family:var(--mono);font-size:11px;background:rgba(255,34,68,.15);border:1px solid var(--danger);color:var(--danger);padding:3px 8px;border-radius:3px;display:none}
+  .machine-alarm-count.visible{display:block}
+  .press-list{padding:12px;display:flex;flex-direction:column;gap:10px}
+
+  .press-item{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;transition:border-color .3s}
+  .press-item.alarm{border-color:var(--danger);animation:alarm-pulse 1.5s ease-in-out infinite}
+  @keyframes alarm-pulse{0%,100%{box-shadow:inset 0 0 12px rgba(255,34,68,.08),0 0 8px rgba(255,34,68,.15)}50%{box-shadow:inset 0 0 20px rgba(255,34,68,.18),0 0 18px rgba(255,34,68,.3)}}
+  .press-item.warning{border-color:var(--warn)}
+  .press-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .press-label{font-family:var(--head);font-size:13px;font-weight:600;color:var(--text-dim);letter-spacing:2px}
+  .alarm-badge{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:2px}
+  .alarm-badge.service{background:rgba(255,34,68,.2);border:1px solid var(--danger);color:var(--danger);animation:blink .8s step-end infinite}
+  .alarm-badge.warning{background:rgba(255,107,0,.2);border:1px solid var(--warn);color:var(--warn)}
+  @keyframes blink{50%{opacity:0}}
+
+  .mold-select-wrap{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+  .mold-label-mini{font-size:10px;color:var(--text-dim);letter-spacing:1px;white-space:nowrap}
+  .mold-select{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:12px;padding:5px 8px;border-radius:3px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a6480'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px}
+  .mold-select:focus{outline:none;border-color:var(--accent)}
+  .mold-select option{background:#0f1626;color:var(--text-bright)}
+  .mold-select.no-molds{color:var(--text-dim)}
+
+  .progress-bar-bg{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;margin-bottom:6px}
+  .progress-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .5s ease}
+  .progress-bar-fill.warn-fill{background:linear-gradient(90deg,#cc5500,var(--warn))}
+  .progress-bar-fill.alarm-fill{background:linear-gradient(90deg,#aa0022,var(--danger))}
+  .press-stats{display:flex;align-items:baseline;justify-content:space-between}
+  .unit-count{font-family:var(--mono);font-size:20px;color:var(--text-bright)}
+  .unit-count.alarm-text{color:var(--danger)}.unit-count.warn-text{color:var(--warn)}
+  .unit-max{font-family:var(--mono);font-size:11px;color:var(--text-dim)}
+  .unit-pct{font-family:var(--mono);font-size:11px}
+  .press-actions{display:flex;gap:6px;margin-top:8px}
+  .mini-btn{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:3px;border:1px solid;cursor:pointer;background:transparent;letter-spacing:1px;transition:all .15s}
+  .mini-btn-reset{border-color:var(--ok);color:var(--ok)}.mini-btn-reset:hover{background:rgba(0,230,118,.1)}
+
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,10,20,.88);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center}
+  .overlay.open{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:8px;width:580px;max-width:95vw;padding:28px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);max-height:90vh;overflow-y:auto}
+  .modal h2{font-family:var(--head);font-size:20px;color:var(--text-bright);margin-bottom:16px;letter-spacing:2px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+  /* MOLD MANAGER */
+  .mold-add-row{display:flex;gap:8px;margin-bottom:14px}
+  .mold-add-row input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text-bright);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:4px}
+  .mold-add-row input:focus{outline:none;border-color:var(--accent)}
+  .mold-list-box{background:var(--panel2);border:1px solid var(--border);border-radius:4px;max-height:320px;overflow-y:auto}
+  .mold-list-empty{padding:24px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text-dim)}
+  .mold-list-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+  .mold-list-item:last-child{border-bottom:none}
+  .mold-list-item:hover{background:rgba(255,255,255,.03)}
+  .mold-list-item-name{font-family:var(--mono);font-size:13px;color:var(--text-bright)}
+  .mold-list-item-del{background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .mold-list-item-del:hover{border-color:var(--danger);color:var(--danger);background:rgba(255,34,68,.1)}
+  .mold-count-badge{font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:10px}
+  .mold-count-badge span{color:var(--accent)}
+
+  /* CSV */
+  .csv-format-box{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:14px 16px;margin-bottom:16px}
+  .csv-format-box .box-title{font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px}
+  .csv-format-box code{font-family:var(--mono);font-size:13px;color:var(--accent);display:block;margin-bottom:8px}
+  .csv-example{border-collapse:collapse;width:100%;margin-bottom:8px}
+  .csv-example th{background:rgba(0,212,255,.08);color:var(--accent);font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--border);text-align:left}
+  .csv-example td{font-family:var(--mono);font-size:11px;color:var(--text);padding:4px 10px;border:1px solid var(--border)}
+  .csv-note{font-size:11px;color:var(--text-dim);line-height:1.7;margin-top:8px}
+  .drop-zone{border:2px dashed var(--border);border-radius:6px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+  .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(0,212,255,.04)}
+  .drop-zone-icon{font-size:32px;margin-bottom:8px}
+  .drop-zone p{font-size:13px;color:var(--text-dim);margin-bottom:4px}
+  .drop-zone small{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+  #csv-file-input{display:none}
+  .csv-result{background:var(--panel2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:4px;display:none}
+  .result-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;margin-bottom:4px}
+  .result-row span:first-child{color:var(--text-dim)}
+  .ok-val{color:var(--ok)}.err-val{color:var(--danger)}
+
+  .footer-bar{margin-top:20px;padding:10px 20px;background:var(--panel);border:1px solid var(--border);border-radius:0 0 8px 8px;display:flex;align-items:center;gap:20px;font-family:var(--mono);font-size:11px;color:var(--text-dim);flex-wrap:wrap}
+  .footer-stat span{color:var(--accent)}
+
+  .toast-wrap{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+  .toast{padding:10px 16px;border-radius:4px;border:1px solid;font-family:var(--mono);font-size:12px;animation:toast-in .3s ease,toast-out .3s ease 2.7s forwards;pointer-events:none}
+  .toast.ok{background:rgba(0,230,118,.12);border-color:var(--ok);color:var(--ok)}
+  .toast.err{background:rgba(255,34,68,.12);border-color:var(--danger);color:var(--danger)}
+  .toast.info{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent)}
+  @keyframes toast-in{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+  @keyframes toast-out{to{opacity:0}}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">T</div>
+      <div class="logo-text">
+        <h1>TOWA MOLD TRACKER</h1>
+        <p>Press &amp; Mold Die Unit Counter System</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="sync-time" id="sync-time">CONNECTING…</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openUpload()">⬆ UPLOAD CSV</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-dim" onclick="openMoldManager()">🔩 MANAGE MOLD DIES</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-ok" onclick="saveData()">💾 SAVE</button>
+    <div class="threshold-wrap">
+      <label>SERVICE THRESHOLD</label>
+      <input type="number" id="global-threshold" value="674592" min="1" onchange="updateThreshold(this.value)">
+    </div>
+  </div>
+
+  <div class="machines" id="machines-container"></div>
+
+  <div class="footer-bar">
+    <div class="footer-stat">MACHINES: <span>3</span></div>
+    <div class="footer-stat">TOTAL PRESSES: <span>9</span></div>
+    <div class="footer-stat">ALARMS: <span id="alarm-count-footer" style="color:var(--ok)">0</span></div>
+    <div class="footer-stat">MOLD DIES: <span id="mold-count-footer">0</span></div>
+    <div class="footer-stat" id="last-save">LAST SAVE: <span>—</span></div>
+    <div class="footer-stat" style="margin-left:auto">TOWA PRESS MONITORING v3</div>
+  </div>
+</div>
+
+<!-- MOLD DIE MANAGER -->
+<div class="overlay" id="mold-modal">
+  <div class="modal" style="width:480px">
+    <h2>🔩 MANAGE MOLD DIES</h2>
+    <div class="mold-add-row">
+      <input type="text" id="mold-new-input" placeholder="e.g. 2.0MM #10 or 4.0MM #19"
+        onkeydown="if(event.key==='Enter')addMold()">
+      <button class="btn btn-primary" style="padding:8px 16px" onclick="addMold()">+ ADD</button>
+    </div>
+    <div class="mold-count-badge">TOTAL IN LIST: <span id="mold-list-count">0</span></div>
+    <div class="mold-list-box" id="mold-list-box">
+      <div class="mold-list-empty" id="mold-list-empty">No mold dies added yet.<br>Type a name above and click ADD.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ok" onclick="closeMoldManager()">✓ DONE</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV UPLOAD -->
+<div class="overlay" id="upload-modal">
+  <div class="modal">
+    <h2>⬆ UPLOAD WEEKLY SHOT DATA</h2>
+    <div class="csv-format-box">
+      <div class="box-title">REQUIRED CSV FORMAT — 3 COLUMNS WITH HEADER ROW:</div>
+      <code>machine,press,shots</code>
+      <table class="csv-example">
+        <tr><th>machine</th><th>press</th><th>shots</th></tr>
+        <tr><td>TOWA#43</td><td>1</td><td>12450</td></tr>
+        <tr><td>TOWA#43</td><td>2</td><td>9800</td></tr>
+        <tr><td>TOWA#44</td><td>1</td><td>11200</td></tr>
+        <tr><td>TOWA#45</td><td>3</td><td>8600</td></tr>
+      </table>
+      <div class="csv-note">
+        • <b>machine</b>: TOWA#43, TOWA#44, or TOWA#45 &nbsp;|&nbsp; <b>press</b>: 1, 2, or 3 &nbsp;|&nbsp; <b>shots</b>: number<br>
+        • Shot counts are <b>added</b> to existing totals &nbsp;|&nbsp; Only values are saved — not the file
+      </div>
+    </div>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+      <div class="drop-zone-icon">📄</div>
+      <p>Drop CSV file here or click to browse</p>
+      <small>Accepts .csv or .txt</small>
+    </div>
+    <input type="file" id="csv-file-input" accept=".csv,.txt" onchange="handleFileSelect(this)">
+    <div class="csv-result" id="csv-result">
+      <div class="result-row"><span>FILE</span><span id="r-file" class="ok-val">—</span></div>
+      <div class="result-row"><span>TOTAL ROWS</span><span id="r-total" class="ok-val">0</span></div>
+      <div class="result-row"><span>MATCHED &amp; READY</span><span id="r-ok" class="ok-val">0</span></div>
+      <div class="result-row"><span>SKIPPED</span><span id="r-skip">0</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="closeUpload()">CANCEL</button>
+      <button class="btn btn-ok" id="apply-csv-btn" onclick="applyCSV()" disabled>✓ APPLY DATA</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  HARDCODED CREDENTIALS
+// ══════════════════════════════════════════════
+const API_KEY = '$2a$10$5.i4u9ICZHRA0uTevoZCKei0XxpQPVKueq/sJ87ujQk8ShTModkm6';
+const BIN_ID  = '69e5ec98aaba8821971a45a8';
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const MACHINES    = ['TOWA#43','TOWA#44','TOWA#45'];
+const PRESS_COUNT = 3;
+
+let state = {
+  threshold: 674592,
+  moldList:  [],
+  machines:  {}
+};
+
+MACHINES.forEach(m => {
+  state.machines[m] = {};
+  for(let p = 1; p <= PRESS_COUNT; p++)
+    state.machines[m][`press${p}`] = { mold: '', units: 0 };
+});
+
+let pendingCSV = null;
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function init() {
+  // Load localStorage first for instant render
+  const saved = localStorage.getItem('towa_v3');
+  if(saved) {
+    try {
+      const s = JSON.parse(saved);
+      if(s.threshold)            state.threshold = s.threshold;
+      if(Array.isArray(s.moldList)) state.moldList = s.moldList;
+      if(s.machines) {
+        MACHINES.forEach(m => {
+          if(s.machines[m]) {
+            for(let p = 1; p <= PRESS_COUNT; p++) {
+              const k = `press${p}`;
+              if(s.machines[m][k])
+                state.machines[m][k] = { ...state.machines[m][k], ...s.machines[m][k] };
+            }
+          }
+        });
+      }
+    } catch(e) {}
+  }
+  document.getElementById('global-threshold').value = state.threshold;
+  renderAll();
+  updateMoldFooter();
+  // Then sync from cloud
+  loadFromBin();
+}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderAll() {
+  const c = document.getElementById('machines-container');
+  c.innerHTML = '';
+  let totalAlarms = 0;
+
+  MACHINES.forEach(mid => {
+    const card = document.createElement('div');
+    card.className = 'machine-card';
+    let alarms = 0, html = '';
+
+    for(let p = 1; p <= PRESS_COUNT; p++) {
+      const k     = `press${p}`;
+      const press = state.machines[mid][k];
+      const units = press.units || 0;
+      const pct   = Math.min(units / state.threshold * 100, 100);
+      const isA   = units >= state.threshold;
+      const isW   = !isA && pct >= 80;
+      if(isA) alarms++;
+
+      const noMolds = state.moldList.length === 0;
+      let opts = `<option value="">— Select Mold Die —</option>`;
+      state.moldList.forEach(name => {
+        opts += `<option value="${esc(name)}"${press.mold === name ? ' selected' : ''}>${esc(name)}</option>`;
+      });
+
+      html += `
+        <div class="press-item ${isA ? 'alarm' : isW ? 'warning' : ''}">
+          <div class="press-top">
+            <span class="press-label">PRESS ${p}</span>
+            ${isA ? '<span class="alarm-badge service">⚠ SERVICE NOW</span>' : ''}
+            ${isW ? '<span class="alarm-badge warning">⚡ NEAR LIMIT</span>'  : ''}
+          </div>
+          <div class="mold-select-wrap">
+            <span class="mold-label-mini">MOLD DIE:</span>
+            <select class="mold-select${noMolds ? ' no-molds' : ''}"
+              onchange="updateMold('${mid}','${k}',this.value)">
+              ${noMolds ? '<option value="">No mold dies — click 🔩 Manage</option>' : opts}
+            </select>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${isA ? 'alarm-fill' : isW ? 'warn-fill' : ''}" style="width:${pct}%"></div>
+          </div>
+          <div class="press-stats">
+            <span class="unit-count ${isA ? 'alarm-text' : isW ? 'warn-text' : ''}">${units.toLocaleString()}</span>
+            <span class="unit-pct" style="color:${isA ? 'var(--danger)' : isW ? 'var(--warn)' : 'var(--text-dim)'}">${pct.toFixed(1)}%</span>
+            <span class="unit-max">/ ${state.threshold.toLocaleString()}</span>
+          </div>
+          <div class="press-actions">
+            <button class="mini-btn mini-btn-reset" onclick="resetPress('${mid}','${k}')">↺ RESET COUNTER</button>
+          </div>
+        </div>`;
+    }
+
+    totalAlarms += alarms;
+    card.innerHTML = `
+      <div class="machine-header">
+        <span class="machine-id">${mid}</span>
+        <span class="machine-alarm-count ${alarms > 0 ? 'visible' : ''}">${alarms} ALARM${alarms !== 1 ? 'S' : ''}</span>
+      </div>
+      <div class="press-list">${html}</div>`;
+    c.appendChild(card);
+  });
+
+  const el = document.getElementById('alarm-count-footer');
+  el.textContent = totalAlarms;
+  el.style.color  = totalAlarms > 0 ? 'var(--danger)' : 'var(--ok)';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function updateMold(m, k, v)   { state.machines[m][k].mold = v; }
+function updateThreshold(v)    { state.threshold = parseInt(v) || 674592; renderAll(); }
+function updateMoldFooter()    { document.getElementById('mold-count-footer').textContent = state.moldList.length; }
+
+function resetPress(m, k) {
+  if(!confirm(`Reset ${m} ${k} unit count to 0?`)) return;
+  state.machines[m][k].units = 0;
+  renderAll();
+  showToast(`${m} ${k} counter reset`, 'ok');
+}
+
+// ══════════════════════════════════════════════
+//  MOLD DIE MANAGER
+// ══════════════════════════════════════════════
+function openMoldManager() {
+  document.getElementById('mold-new-input').value = '';
+  renderMoldList();
+  document.getElementById('mold-modal').classList.add('open');
+  setTimeout(() => document.getElementById('mold-new-input').focus(), 100);
+}
+function closeMoldManager() {
+  document.getElementById('mold-modal').classList.remove('open');
+  renderAll();
+  updateMoldFooter();
+}
+
+function renderMoldList() {
+  const box   = document.getElementById('mold-list-box');
+  const empty = document.getElementById('mold-list-empty');
+  document.getElementById('mold-list-count').textContent = state.moldList.length;
+  box.querySelectorAll('.mold-list-item').forEach(el => el.remove());
+
+  if(state.moldList.length === 0) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  state.moldList.forEach((name, idx) => {
+    const item = document.createElement('div');
+    item.className = 'mold-list-item';
+    item.innerHTML = `
+      <span class="mold-list-item-name">${esc(name)}</span>
+      <button class="mold-list-item-del" onclick="deleteMold(${idx})">✕ REMOVE</button>`;
+    box.appendChild(item);
+  });
+}
+
+function addMold() {
+  const input = document.getElementById('mold-new-input');
+  const val   = input.value.trim();
+  if(!val)                            { showToast('Enter a mold die name', 'err'); return; }
+  if(state.moldList.includes(val))    { showToast('Already in list', 'err'); return; }
+  state.moldList.push(val);
+  input.value = '';
+  renderMoldList();
+  showToast(`"${val}" added`, 'ok');
+}
+
+function deleteMold(idx) {
+  const name = state.moldList[idx];
+  MACHINES.forEach(m => {
+    for(let p = 1; p <= PRESS_COUNT; p++) {
+      const k = `press${p}`;
+      if(state.machines[m][k].mold === name)
+        state.machines[m][k].mold = '';
+    }
+  });
+  state.moldList.splice(idx, 1);
+  renderMoldList();
+  showToast(`"${name}" removed`, 'info');
+}
+
+// ══════════════════════════════════════════════
+//  CSV UPLOAD
+// ══════════════════════════════════════════════
+function openUpload() {
+  pendingCSV = null;
+  document.getElementById('csv-result').style.display  = 'none';
+  document.getElementById('drop-zone').style.display   = '';
+  document.getElementById('apply-csv-btn').disabled    = true;
+  document.getElementById('csv-file-input').value      = '';
+  document.getElementById('upload-modal').classList.add('open');
+}
+function closeUpload() { document.getElementById('upload-modal').classList.remove('open'); }
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  if(e.dataTransfer.files[0]) processCSVFile(e.dataTransfer.files[0]);
+});
+function handleFileSelect(i) { if(i.files[0]) processCSVFile(i.files[0]); }
+
+function processCSVFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text  = e.target.result;
+    const delim = text.includes(';') ? ';' : ',';
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    if(lines.length < 2) { showToast('CSV needs header + data rows', 'err'); return; }
+
+    const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+    const rows    = lines.slice(1).map(l => l.split(delim).map(v => v.trim().replace(/^"|"$/g,'')));
+
+    const colM = headers.findIndex(h => /machine|towa|id|mach/.test(h));
+    const colP = headers.findIndex(h => /press|station/.test(h));
+    const colS = headers.findIndex(h => /shot|unit|count|qty|pcs|piece/.test(h));
+
+    if(colM < 0 || colP < 0 || colS < 0) {
+      showToast('Cannot find machine / press / shots columns', 'err'); return;
+    }
+
+    let ok = 0, skip = 0;
+    const parsed = [];
+    rows.forEach(row => {
+      const rawM  = (row[colM] || '').trim().toUpperCase();
+      const pNum  = parseInt((row[colP] || '').replace(/\D/g,''));
+      const shots = parseInt(row[colS]) || 0;
+      if(!shots || !pNum || pNum < 1 || pNum > PRESS_COUNT) { skip++; return; }
+      const machine = MACHINES.find(m =>
+        m.toUpperCase() === rawM ||
+        m.replace('#','').toUpperCase() === rawM.replace('#','') ||
+        rawM === m.split('#')[1]
+      );
+      if(!machine) { skip++; return; }
+      parsed.push({ machine, pressKey: `press${pNum}`, shots });
+      ok++;
+    });
+
+    pendingCSV = parsed;
+    document.getElementById('r-file').textContent  = file.name;
+    document.getElementById('r-total').textContent = rows.length;
+    document.getElementById('r-ok').textContent    = ok;
+    const skipEl = document.getElementById('r-skip');
+    skipEl.textContent = skip;
+    skipEl.className   = skip > 0 ? 'err-val' : 'ok-val';
+    document.getElementById('csv-result').style.display = '';
+    document.getElementById('drop-zone').style.display  = 'none';
+    document.getElementById('apply-csv-btn').disabled   = ok === 0;
+    if(ok === 0) showToast('No rows matched — check machine IDs and press numbers', 'err');
+  };
+  reader.readAsText(file);
+}
+
+function applyCSV() {
+  if(!pendingCSV || !pendingCSV.length) return;
+  pendingCSV.forEach(({ machine, pressKey, shots }) =>
+    state.machines[machine][pressKey].units += shots
+  );
+  renderAll();
+  closeUpload();
+  showToast(`Applied ${pendingCSV.length} shot entries ✓`, 'ok');
+  pendingCSV = null;
+}
+
+// ══════════════════════════════════════════════
+//  JSONBIN  (credentials hardcoded above)
+// ══════════════════════════════════════════════
+async function saveData() {
+  persistLocal();
+  showToast('Saving to cloud…', 'info');
+  const payload = {
+    threshold: state.threshold,
+    moldList:  state.moldList,
+    machines:  state.machines,
+    savedAt:   new Date().toISOString()
+  };
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body:    JSON.stringify(payload)
+    });
+    if(r.ok) {
+      showToast('Saved to cloud ☁ ✓', 'ok');
+      updateLastSave(true);
+      setStatus(true);
+    } else {
+      const j = await r.json().catch(() => ({}));
+      showToast(`Save error: ${j.message || r.status}`, 'err');
+      updateLastSave(false);
+    }
+  } catch(e) {
+    showToast('Cloud unreachable — saved locally', 'err');
+    updateLastSave(false);
+  }
+}
+
+async function loadFromBin() {
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    if(!r.ok) { setStatus(false); return; }
+    const data = await r.json();
+    const rec  = data.record;
+    if(!rec) { setStatus(false); return; }
+
+    if(rec.threshold)              state.threshold = rec.threshold;
+    if(Array.isArray(rec.moldList)) state.moldList = rec.moldList;
+    if(rec.machines) {
+      MACHINES.forEach(m => {
+        if(rec.machines[m]) {
+          for(let p = 1; p <= PRESS_COUNT; p++) {
+            const k = `press${p}`;
+            if(rec.machines[m][k])
+              state.machines[m][k] = { ...state.machines[m][k], ...rec.machines[m][k] };
+          }
+        }
+      });
+    }
+    document.getElementById('global-threshold').value = state.threshold;
+    persistLocal();
+    renderAll();
+    updateMoldFooter();
+    setStatus(true, rec.savedAt);
+    showToast('Synced from cloud ✓', 'ok');
+  } catch(e) {
+    setStatus(false);
+    showToast('Cloud unreachable — using local data', 'info');
+  }
+}
+
+function persistLocal() { localStorage.setItem('towa_v3', JSON.stringify(state)); }
+
+function updateLastSave(remote) {
+  document.querySelector('#last-save span').textContent =
+    (remote ? '☁ ' : '💻 ') + new Date().toLocaleTimeString();
+}
+
+function setStatus(ok, timeStr) {
+  const el  = document.getElementById('sync-time');
+  const dot = document.getElementById('status-dot');
+  if(ok) {
+    const t = timeStr ? new Date(timeStr).toLocaleString() : new Date().toLocaleTimeString();
+    el.textContent          = 'CLOUD SYNC ' + t;
+    dot.style.background    = 'var(--ok)';
+    dot.style.boxShadow     = '0 0 8px var(--ok)';
+  } else {
+    el.textContent          = 'LOCAL ONLY';
+    dot.style.background    = 'var(--warn)';
+    dot.style.boxShadow     = '0 0 8px var(--warn)';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  TOAST & MISC
+// ══════════════════════════════════════════════
+function showToast(msg, type = 'info') {
+  const wrap = document.getElementById('toast-wrap');
+  const t    = document.createElement('div');
+  t.className   = `toast ${type}`;
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); })
+);
+
+init();
+</script>
+</body>
+</html>
