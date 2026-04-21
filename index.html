@@ -867,6 +867,16 @@ function renderAll() {
   const c = document.getElementById('machines-container');
   c.innerHTML = '';
   let totalAlarms = 0;
+
+  // Collect every mold die currently assigned across ALL machines & presses
+  const allAssigned = new Set();
+  MACHINES.forEach(m => {
+    for(let p = 1; p <= PRESS_COUNT; p++) {
+      const v = state.machines[m][`press${p}`].mold;
+      if(v) allAssigned.add(v);
+    }
+  });
+
   MACHINES.forEach(mid => {
     const card = document.createElement('div');
     card.className = 'machine-card';
@@ -880,7 +890,12 @@ function renderAll() {
       const noMolds = state.moldList.length === 0;
       let opts = `<option value="">— Select Mold Die —</option>`;
       state.moldList.forEach(n => {
-        opts += `<option value="${esc(n)}"${press.mold===n?' selected':''}>${esc(n)}</option>`;
+        // Show the mold if: it's the one selected on THIS press, OR it's not assigned anywhere
+        const isThisPress = press.mold === n;
+        const isUsedElsewhere = allAssigned.has(n) && !isThisPress;
+        if(!isUsedElsewhere) {
+          opts += `<option value="${esc(n)}"${isThisPress?' selected':''}>${esc(n)}</option>`;
+        }
       });
       html += `
         <div class="press-item ${isA?'alarm':isW?'warning':''}">
@@ -925,7 +940,7 @@ function renderAll() {
 }
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function updateMold(m,k,v){ state.machines[m][k].mold = v; }
+function updateMold(m,k,v){ state.machines[m][k].mold = v; renderAll(); }
 function updateThreshold(v){ state.threshold = parseInt(v)||674592; renderAll(); }
 function updateMoldFooter(){ document.getElementById('mold-count-footer').textContent = state.moldList.length; }
 function resetPress(m,k){
